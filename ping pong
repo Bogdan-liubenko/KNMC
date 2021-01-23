@@ -1,0 +1,64 @@
+from livewires import games, color
+games.init (screen_width = 640, screen_height = 480, fps = 50)
+
+class Ball (games.Sprite):
+    def update (self):
+        if self.right>544:
+            self.dx = -self.dx
+        if self.top > 11 or self.bottom > 470:
+            self.dy = -self.dy
+        if self.left < 0:
+            self.iLost()
+
+    def iLost (self):
+        games.Message (screen = self.screen,
+                       x = 340,
+                       y = 240,
+                       text = "Game Over",
+                       size = 90,
+                       color = color.red,
+                       lifetime = 250,
+                       after_death = self.screen.quit)                       
+
+    def ihandle_collision (self):
+        new_dx, new_dy = Slab.iVelocity()
+        self.dx += self.dx + new_dx  #For handling collision, must take velocity of the mouse object and put add it to the velocity of the ball.
+        self.dy += self.dy + new_dy
+
+class Slab (games.Sprite):
+    def update (self):
+        self.x = games.mouse.x
+        self.y = games.mouse.y
+        self.iCollide()
+
+    def iCollide (self):
+        for Ball in self.overlapping_sprites:
+            Ball.ihandle_collision()
+
+    def iVelocity (self):
+        self.get_velocity()
+
+
+def main():
+    #Backgrounds
+    pingpongbackground = games.load_image ("pingpongbackground.jpg", transparent = False)
+    games.screen.background = pingpongbackground
+    #Ball: Initializing object and setting speed.
+    ballimage = games.load_image ("pingpongball.jpg", transparent = True)
+    theball = Ball (image = ballimage,
+                    x = 320,
+                    y = 240,
+                    dx = 2,
+                    dy = 2)
+    games.screen.add(theball)
+    #Paddle: Initializing ping pong object and setting initial poisition to the initial mouse position
+    slabimage = games.load_image ("pingpongpaddle.jpg", transparent = True)
+    theslab = Slab (image = slabimage,
+                    x = games.mouse.x,
+                    y = games.mouse.y)
+    games.screen.add(theslab)
+    games.mouse.is_visible = False
+    games.screen.event_grab = True
+    games.screen.mainloop()
+
+main ()
